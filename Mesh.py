@@ -43,11 +43,13 @@ class Mesh:
 
         return np.arccos((v1[0]*v2[0] + v1[1]*v2[1]) / (self.length(r1.n1,r1.n2) * self.length(r2.n1,r2.n2))) * 180/pi
 
-    def get_nodes(self):
-        nodes = np.empty(shape=[0, 2])
+    def get_nodes(self):  #first create list then change to ndarray
+        #nodes = np.empty(shape=[0, 1])
+        nodes =[]
         for n in self.nodes:
-            nodes = np.append(nodes, [n.x, n.y], axis=0)
-        return nodes
+            nodes.append([n.x, n.y])
+            #nodes = np.append(nodes, [n.x, n.y], axis=0)
+        return np.array(nodes)
 
     def get_lengths(self):
         lengths = np.empty(shape=[0, 1])
