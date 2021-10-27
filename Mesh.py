@@ -42,9 +42,6 @@ class Mesh:
         l = self.length(r.n1, r.n2)
         left_n, right_n = self.orient_nodes(r)
 
-        print(f"left x: {left_n.x}, right x: {right_n.x}")
-        print(f"left y: {left_n.y}, right y: {right_n.y}")
-
         return [(right_n.y - left_n.y)/l, (right_n.x - left_n.x)/l]  # sine, cosine
 
     def angle_matrix(self, r):
@@ -59,6 +56,19 @@ class Mesh:
         result[3,2] = -self.angle(r)[0]  # TODO unpacking variables in numpy
 
         return result
+
+    def get_k(self, r):
+        constant = (self.A * self.E)/self.length(r.n1, r.n2)
+
+        return constant * np.array([[1, 0, -1, 0],[0, 0, 0, 0],[-1, 0, 1, 0],[0, 0, 0 ,0]])
+
+    def get_stiffnes(self, r):
+
+        return self.angle_matrix(r).transpose() * self.get_k(r) * self.angle_matrix(r)
+
+    def get_stiffnes_matrix(self):
+        self.stiffnes_matrix = np.zeros([len(self.nodes)*2, len(self.nodes)*2])
+
 
     def get_nodes(self):  #first create list then change to ndarray
         #nodes = np.empty(shape=[0, 1])
