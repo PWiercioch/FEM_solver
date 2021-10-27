@@ -11,6 +11,10 @@ class Mesh:
         self.nodes = [] # store as a datframe with columns: index and node or see read_from_file_method
         self.rods = []
 
+        self.A = 1
+        self.E = 1
+
+
     def determinability(self):  # TODO
         pass
 
@@ -28,20 +32,33 @@ class Mesh:
         else:
             return r1.n2
 
-    def angle(self, r1, r2):
-        c_n = self.common_node(r1, r2)
-
-        if c_n != r1.n2:
-            v1 = self.vector(c_n, r1.n2)
+    def orient_nodes(self, r):  # TODO implement in rod class
+        if r.n1.x < r.n2.x:
+            return [r.n1, r.n2]
         else:
-            v1 = self.vector(c_n, r1.n1)
+            return [r.n2, r.n1]
 
-        if c_n != r2.n2:
-            v2 = self.vector(c_n, r2.n2)
-        else:
-            v2 = self.vector(c_n, r2.n1)
+    def angle(self, r):  # TODO can be made a abstarct class and inherited to cosine and sine
+        l = self.length(r.n1, r.n2)
+        left_n, right_n = self.orient_nodes(r)
 
-        return np.arccos((v1[0]*v2[0] + v1[1]*v2[1]) / (self.length(r1.n1,r1.n2) * self.length(r2.n1,r2.n2))) * 180/pi
+        print(f"left x: {left_n.x}, right x: {right_n.x}")
+        print(f"left y: {left_n.y}, right y: {right_n.y}")
+
+        return [(right_n.y - left_n.y)/l, (right_n.x - left_n.x)/l]  # sine, cosine
+
+    def angle_matrix(self, r):
+        result = np.zeros([4, 4])
+        result[0,0] = self.angle(r)[1]
+        result[1,1] = self.angle(r)[1]
+        result[2,2] = self.angle(r)[1]
+        result[3,3] = self.angle(r)[1]  # TODO dont call everytime  - create variable
+        result[0,1] = self.angle(r)[0]
+        result[2,3] = self.angle(r)[0]
+        result[1,0]= -self.angle(r)[0]
+        result[3,2] = -self.angle(r)[0]  # TODO unpacking variables in numpy
+
+        return result
 
     def get_nodes(self):  #first create list then change to ndarray
         #nodes = np.empty(shape=[0, 1])
