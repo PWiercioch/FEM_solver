@@ -1,9 +1,8 @@
 import matplotlib.pyplot as plt
 import numpy as np
-from math import sqrt, pi
+from Node import Node
+from Rod import Rod
 
-
-# TODO - move classes to separeate files and move methods (e.g. - length and vector to rod classs)
 
 class Mesh:
 
@@ -18,47 +17,21 @@ class Mesh:
     def determinability(self):  # TODO
         pass
 
-    def length(self, n1, n2):  # TODO calculate from vector and use in angle method
-        return sqrt((n2.x - n1.x)**2 + (n2.y - n1.y)**2)
-
-    def vector(self, n1, n2):
-        return np.array([n2.x-n1.x, n2.y-n1.y])
-
-    def common_node(self, r1, r2):
-        if r1.n1 == r2.n1:
-            return r1.n1
-        elif r1.n1 == r2.n2:
-            return r1.n1
-        else:
-            return r1.n2
-
-    def orient_nodes(self, r):  # TODO implement in rod class
-        if r.n1.x < r.n2.x:
-            return [r.n1, r.n2]
-        else:
-            return [r.n2, r.n1]
-
-    def angle(self, r):  # TODO can be made a abstarct class and inherited to cosine and sine
-        l = self.length(r.n1, r.n2)
-        left_n, right_n = self.orient_nodes(r)
-
-        return [(right_n.y - left_n.y)/l, (right_n.x - left_n.x)/l]  # sine, cosine
-
     def angle_matrix(self, r):
         result = np.zeros([4, 4])
-        result[0,0] = self.angle(r)[1]
-        result[1,1] = self.angle(r)[1]
-        result[2,2] = self.angle(r)[1]
-        result[3,3] = self.angle(r)[1]  # TODO dont call everytime  - create variable
-        result[0,1] = self.angle(r)[0]
-        result[2,3] = self.angle(r)[0]
-        result[1,0]= -self.angle(r)[0]
-        result[3,2] = -self.angle(r)[0]  # TODO unpacking variables in numpy
+        result[0,0] = r.angle()[1]
+        result[1,1] = r.angle()[1]
+        result[2,2] = r.angle()[1]
+        result[3,3] = r.angle()[1]  # TODO dont call everytime  - create variable
+        result[0,1] = r.angle()[0]
+        result[2,3] = r.angle()[0]
+        result[1,0]= -r.angle()[0]
+        result[3,2] = -r.angle()[0]  # TODO unpacking variables in numpy
 
         return result
 
     def get_k(self, r):
-        constant = (self.A * self.E)/self.length(r.n1, r.n2)
+        constant = (self.A * self.E)/r.length()
 
         return constant * np.array([[1, 0, -1, 0],[0, 0, 0, 0],[-1, 0, 1, 0],[0, 0, 0 ,0]])
 
@@ -81,7 +54,7 @@ class Mesh:
     def get_lengths(self):
         lengths = np.empty(shape=[0, 1])
         for r in self.rods:
-            lengths = np.append(lengths, self.length(r.n1, r.n2))  # TODO accept rod as argument
+            lengths = np.append(lengths, r.length())
         return lengths
 
     def read_from_file(self, path):  # TODO - test for any input
@@ -124,17 +97,3 @@ class Mesh:
 
         plt.legend()
         plt.show()
-
-
-class Node:
-
-    def __init__(self, x, y):
-        self.x = x
-        self.y = y
-
-
-class Rod:
-
-    def __init__(self, n1: Node, n2: Node):
-        self.n1 = n1
-        self.n2 = n2
