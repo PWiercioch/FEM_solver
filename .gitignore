@@ -1,3 +1,7 @@
 .idea/
 __pycache__/
 test.py
+ANSYS.wbpj
+ANSYS.wbpz
+ANSYS_mesh.txt
+ANSYS_files

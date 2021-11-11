@@ -10,31 +10,21 @@ class Mesh:
         self.nodes = []  # store as a dataframe with columns: index and node or see read_from_file_method
         self.rods = []
 
-        self.A = 1
-        self.E = 1
-
 
     def determinability(self):  # TODO
         pass
 
-    def angle_matrix(self, r):
-        result = np.zeros([4, 4])
-        result[(0, 1, 2, 3), (0, 1, 2, 3)] = r.angle()[1]
-        result[(0, 2, 1), (1, 3, 0)] = r.angle()[0]
-        result[(1, 3), (0, 2)] = -r.angle()[0]
-
-        return result
-
-    def get_k(self, r):
-        constant = (self.A * self.E)/r.length()
-
-        return constant * np.array([[1, 0, -1, 0], [0, 0, 0, 0], [-1, 0, 1, 0], [0, 0, 0, 0]])
-
-    def get_stiffnes(self, r):
-        return self.angle_matrix(r).transpose() * self.get_k(r) * self.angle_matrix(r)
-
     def get_stiffnes_matrix(self):
         self.stiffnes_matrix = np.zeros([len(self.nodes)*2, len(self.nodes)*2])
+
+        for rod in self.rods:
+            rod.get_stiffnes_cords(self)
+            stiff = rod.get_stiffnes()
+            cords = rod.stiffnes_cords
+
+            for stiff_r, cord_r in zip(stiff, cords):
+                for stiff_c, cord_c in zip(stiff_r, cord_r):
+                    self.stiffnes_matrix[cord_c[0], cord_c[1]] += stiff_c
 
     def get_nodes(self):  #first create list then change to ndarray
         nodes =[]
