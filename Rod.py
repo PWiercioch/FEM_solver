@@ -5,6 +5,9 @@ import numpy as np
 class Rod:
 
     def __init__(self, n1: Node, n2: Node):
+        self.A = 7.853e-3
+        self.E = 2e11
+
         if n1.x < n2.x:
             self.n1 = n1
             self.n2 = n2
@@ -34,13 +37,13 @@ class Rod:
     def node_id(self, mesh):
         return 2*mesh.nodes.index(self.n1), 2*mesh.nodes.index(self.n2)
 
+    def get_k(self):
+        constant = (self.A * self.E)/self.length()
 
-class StaticRod(Rod):
-    def __init__(self, n1: Node, n2: Node):
-        super().__init__(n1, n2)
+        return constant * np.array([[1, 0, -1, 0], [0, 0, 0, 0], [-1, 0, 1, 0], [0, 0, 0, 0]])
 
-        self.A = 7.853e-3
-        self.E = 2e11
+    def get_stiffnes(self):
+        return np.matmul(np.matmul(self.angle_matrix().transpose(), self.get_k()), self.angle_matrix())
 
     def get_stiffnes_cords(self, mesh):  # TODO - in a loop
         n1_id, n2_id = self.node_id(mesh)
@@ -51,19 +54,22 @@ class StaticRod(Rod):
 
         self.stiffnes_cords = np.array(self.stiffnes_cords)
 
-    def get_k(self):
-        constant = (self.A * self.E)/self.length()
 
-        return constant * np.array([[1, 0, -1, 0], [0, 0, 0, 0], [-1, 0, 1, 0], [0, 0, 0, 0]])
-
-    def get_stiffnes(self):
-        return np.matmul(np.matmul(self.angle_matrix().transpose(), self.get_k()), self.angle_matrix())
+class StaticRod(Rod):
+    def __init__(self, n1: Node, n2: Node):
+        super().__init__(n1, n2)
 
 
 class ModalRod(Rod):
     def __init__(self, n1: Node, n2: Node):
         super().__init__(n1, n2)
 
-        self.A = 7.853e-3
-        self.E = 2e11
         self.ro = 7850
+
+    def get_m(self):
+        constant = (self.ro * self.A * self.length())/6
+
+        return constant * np.array([[2, 0, 1, 0], [0, 2, 0, 1], [1, 0, 2, 0], [0, 1, 0, 2]])
+
+    def get_inertia(self):
+        return np.matmul(np.matmul(self.angle_matrix().transpose(), self.get_m()), self.angle_matrix())

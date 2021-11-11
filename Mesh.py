@@ -2,6 +2,7 @@ import matplotlib.pyplot as plt
 import numpy as np
 from Node import Node
 from Rod import StaticRod, ModalRod
+from scipy import linalg
 
 
 class Mesh:
@@ -18,6 +19,18 @@ class Mesh:
             self.stiffnes_matrix[:, dir] = 0
             self.stiffnes_matrix[dir, :] = 0
             self.stiffnes_matrix[dir, dir] = 1
+
+    def get_stiffnes_matrix(self):  # TODO - do not create additional variable for cords - do it on the go
+        self.stiffnes_matrix = np.zeros([len(self.nodes)*2, len(self.nodes)*2])
+
+        for rod in self.rods:
+            rod.get_stiffnes_cords(self)
+            stiff = rod.get_stiffnes()
+            cords = rod.stiffnes_cords
+
+            for stiff_r, cord_r in zip(stiff, cords):
+                for stiff_c, cord_c in zip(stiff_r, cord_r):
+                    self.stiffnes_matrix[cord_c[0], cord_c[1]] += stiff_c
 
     def move_nodes_with_solution(self):  # TODO
         pass
@@ -83,18 +96,6 @@ class StaticAnalysis(Mesh):
     def solve(self, force):  # TODO - seperate method for displacement and seperate for adding it to base values
         return np.matmul(np.linalg.inv(self.stiffnes_matrix), force)
 
-    def get_stiffnes_matrix(self):  # TODO - do not create additional variable for cords - do it on the go
-        self.stiffnes_matrix = np.zeros([len(self.nodes)*2, len(self.nodes)*2])
-
-        for rod in self.rods:
-            rod.get_stiffnes_cords(self)
-            stiff = rod.get_stiffnes()
-            cords = rod.stiffnes_cords
-
-            for stiff_r, cord_r in zip(stiff, cords):
-                for stiff_c, cord_c in zip(stiff_r, cord_r):
-                    self.stiffnes_matrix[cord_c[0], cord_c[1]] += stiff_c
-
 
 class ModalAnalysis(Mesh):
     def __init__(self):
@@ -102,3 +103,19 @@ class ModalAnalysis(Mesh):
 
     def create_rod(self, n1, n2):
         self.rods.append(ModalRod(n1, n2))
+
+    def get_inertia_matrix(self):  # TODO - do not create additional variable for cords - do it on the go
+        self.inertia_matrix = np.zeros([len(self.nodes)*2, len(self.nodes)*2])
+
+        for rod in self.rods:
+            rod.get_stiffnes_cords(self)
+            inertia = rod.get_inertia()
+            cords = rod.stiffnes_cords
+
+            for inertia_r, cord_r in zip(inertia, cords):
+                for inertia_c, cord_c in zip(inertia_r, cord_r):
+                    self.inertia_matrix[cord_c[0], cord_c[1]] += inertia_c
+
+    def solve(self):
+        return linalg.eigh(self.stiffnes_matrix, self.inertia_matrix)
+        # return np.sqrt(linalg.eig(self.stiffnes_matrix, self.inertia_matrix)[0].real) * 0.15915
