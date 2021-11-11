@@ -3,9 +3,9 @@ import numpy as np
 
 if __name__ == "__main__":
 
-    mesh = Mesh.Mesh()
+    mesh = Mesh.StaticAnalysis()
 
-    mesh.read_from_file('lattice_2.txt')
+    mesh.read_mesh_from_file('lattice_2.txt')
 
     mesh.plot_lattice()
 
