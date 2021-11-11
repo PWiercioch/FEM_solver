@@ -5,8 +5,8 @@ import numpy as np
 class Rod:
 
     def __init__(self, n1: Node, n2: Node):
-        self.A = 1
-        self.E = 1
+        self.A = 7.853e-3
+        self.E = 2e11
 
         if n1.x < n2.x:
             self.n1 = n1
@@ -40,14 +40,16 @@ class Rod:
         return constant * np.array([[1, 0, -1, 0], [0, 0, 0, 0], [-1, 0, 1, 0], [0, 0, 0, 0]])
 
     def get_stiffnes(self):
-        return self.angle_matrix().transpose() * self.get_k() * self.angle_matrix()
+        return np.matmul(np.matmul(self.angle_matrix().transpose(), self.get_k()), self.angle_matrix())
 
     def node_id(self, mesh):
         return 2*mesh.nodes.index(self.n1), 2*mesh.nodes.index(self.n2)
 
     def get_stiffnes_cords(self, mesh):  # TODO - in a loop
         n1_id, n2_id = self.node_id(mesh)
-        self.stiffnes_cords = np.array([[[n1_id, n1_id], [n1_id, n1_id+1], [n1_id, n2_id], [n1_id, n2_id+1]],
-                               [[n1_id+1, n1_id], [n1_id+1, n1_id+1], [n1_id+1, n2_id], [n1_id+1, n2_id+1]],
-                               [[n2_id, n1_id], [n2_id, n1_id+1], [n2_id, n2_id], [n2_id, n2_id+1]],
-                               [[n2_id+1, n1_id], [n2_id+1, n1_id+1], [n2_id+1, n2_id], [n2_id+1, n2_id+1]]])
+
+        self.stiffnes_cords = []
+        for i in [n1_id, n1_id+1, n2_id, n2_id+1]:
+            self.stiffnes_cords.append([[i, n1_id], [i, n1_id + 1], [i, n2_id], [i, n2_id + 1]])
+
+        self.stiffnes_cords = np.array(self.stiffnes_cords)

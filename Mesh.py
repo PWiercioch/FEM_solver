@@ -14,7 +14,7 @@ class Mesh:
     def determinability(self):  # TODO
         pass
 
-    def get_stiffnes_matrix(self):
+    def get_stiffnes_matrix(self):  # TODO - do not create additional variable for cords - do it on the go
         self.stiffnes_matrix = np.zeros([len(self.nodes)*2, len(self.nodes)*2])
 
         for rod in self.rods:
@@ -26,7 +26,19 @@ class Mesh:
                 for stiff_c, cord_c in zip(stiff_r, cord_r):
                     self.stiffnes_matrix[cord_c[0], cord_c[1]] += stiff_c
 
-    def get_nodes(self):  #first create list then change to ndarray
+    def set_boundary_conditions(self, dof):
+        for dir in dof:
+            self.stiffnes_matrix[:, dir] = 0
+            self.stiffnes_matrix[dir, :] = 0
+            self.stiffnes_matrix[dir, dir] = 1
+
+    def solve(self, force):  # TODO - seperate method for displacement and seperate for adding it to base values
+        return np.matmul(np.linalg.inv(self.stiffnes_matrix), force)
+
+    def move_nodes_with_solution(self):  # TODO
+        pass
+
+    def get_nodes(self):
         nodes =[]
         for n in self.nodes:
             nodes.append([n.x, n.y])
