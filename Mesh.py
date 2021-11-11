@@ -7,7 +7,7 @@ from Rod import Rod
 class Mesh:
 
     def __init__(self):
-        self.nodes = [] # store as a datframe with columns: index and node or see read_from_file_method
+        self.nodes = []  # store as a dataframe with columns: index and node or see read_from_file_method
         self.rods = []
 
         self.A = 1
@@ -19,36 +19,27 @@ class Mesh:
 
     def angle_matrix(self, r):
         result = np.zeros([4, 4])
-        result[0,0] = r.angle()[1]
-        result[1,1] = r.angle()[1]
-        result[2,2] = r.angle()[1]
-        result[3,3] = r.angle()[1]  # TODO dont call everytime  - create variable
-        result[0,1] = r.angle()[0]
-        result[2,3] = r.angle()[0]
-        result[1,0]= -r.angle()[0]
-        result[3,2] = -r.angle()[0]  # TODO unpacking variables in numpy
+        result[(0, 1, 2, 3), (0, 1, 2, 3)] = r.angle()[1]
+        result[(0, 2, 1), (1, 3, 0)] = r.angle()[0]
+        result[(1, 3), (0, 2)] = -r.angle()[0]
 
         return result
 
     def get_k(self, r):
         constant = (self.A * self.E)/r.length()
 
-        return constant * np.array([[1, 0, -1, 0],[0, 0, 0, 0],[-1, 0, 1, 0],[0, 0, 0 ,0]])
+        return constant * np.array([[1, 0, -1, 0], [0, 0, 0, 0], [-1, 0, 1, 0], [0, 0, 0, 0]])
 
     def get_stiffnes(self, r):
-
         return self.angle_matrix(r).transpose() * self.get_k(r) * self.angle_matrix(r)
 
     def get_stiffnes_matrix(self):
         self.stiffnes_matrix = np.zeros([len(self.nodes)*2, len(self.nodes)*2])
 
-
     def get_nodes(self):  #first create list then change to ndarray
-        #nodes = np.empty(shape=[0, 1])
         nodes =[]
         for n in self.nodes:
             nodes.append([n.x, n.y])
-            #nodes = np.append(nodes, [n.x, n.y], axis=0)
         return np.array(nodes)
 
     def get_lengths(self):

@@ -21,3 +21,6 @@ class Rod:
             return [self.n1, self.n2]
         else:
             return [self.n2, self.n1]
+
+    def get_nodes(self):
+        return [self.n1, self.n1, self.n2, self.n2]
