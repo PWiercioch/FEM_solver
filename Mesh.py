@@ -84,12 +84,12 @@ class Mesh:
         plt.legend()
         plt.show()
 
-    def plot_solved(self, result, factor=1):
+    def plot_solved(self, result, factor=1, col='r'):
         for i, n in enumerate(self.nodes):
             if i == 0:
-                plt.scatter(n.x + result[2*i] * factor, n.y + result[2*i+1] * factor, color='r', linewidths=8, label='nodes - solved')
+                plt.scatter(n.x + result[2*i] * factor, n.y + result[2*i+1] * factor, color=col, linewidths=8, label='nodes - solved')
             else:
-                plt.scatter(n.x + result[2*i] * factor, n.y + result[2*i+1] * factor, color='r', linewidths=8, label='_nolegend_')
+                plt.scatter(n.x + result[2*i] * factor, n.y + result[2*i+1] * factor, color=col, linewidths=8, label='_nolegend_')
 
         for i, r in enumerate(self.rods):
             n1_id = self.nodes.index(r.n1)
@@ -98,11 +98,11 @@ class Mesh:
             if i == 0:
                 plt.plot([r.n1.x + result[2*n1_id] * factor, r.n2.x + result[2*n2_id] * factor],
                          [r.n1.y + result[2*n1_id+1] * factor, r.n2.y + result[2*n2_id+1] * factor],
-                         color='r', label='rods')
+                         color=col, label='rods')
             else:
                 plt.plot([r.n1.x + result[2*n1_id] * factor, r.n2.x + result[2*n2_id] * factor],
                          [r.n1.y + result[2*n1_id+1] * factor, r.n2.y + result[2*n2_id+1] * factor],
-                         color='r', label='_nolegend_')
+                         color=col, label='_nolegend_')
 
         plt.legend()
         plt.show()

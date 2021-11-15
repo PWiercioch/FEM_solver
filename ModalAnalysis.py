@@ -2,6 +2,9 @@ import numpy as np
 from Mesh import Mesh
 from ModalRod import ModalRod
 from scipy import linalg
+import matplotlib.pyplot as plt
+from time import sleep
+from matplotlib.animation import FuncAnimation
 
 
 class ModalAnalysis(Mesh):
@@ -32,4 +35,25 @@ class ModalAnalysis(Mesh):
         if prepare_model:
             self.create_model()
         return linalg.eigh(self.stiffnes_matrix, self.inertia_matrix)
-        # return np.sqrt(linalg.eig(self.stiffnes_matrix, self.inertia_matrix)[0].real) * 0.15915
+
+    def plot_frequencies(self, result, factor=1):
+        for freq in result.transpose():
+            plt.figure()
+            self.plot_lattice()
+            self.plot_solved(freq, factor, col='r')
+            self.plot_solved(-freq, factor, col='b')
+
+    def animate(self, i, freq, factor=1):  # TODO
+        plt.cla()
+        self.plot_lattice()
+        if i%2 == 0:
+            self.plot_solved(freq, factor)
+        else:
+            self.plot_solved(-freq, factor)
+        sleep(2)
+
+    def animate_frequency(self, freq, factor=1):  # TODO
+        fig, ax = plt.subplots()
+
+        ani = FuncAnimation(fig, self.animate, frames=20, interval=500, fargs=[freq], repeat=False)
+        plt.show()
