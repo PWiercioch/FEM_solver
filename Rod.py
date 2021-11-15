@@ -2,7 +2,7 @@ from Node import Node
 from math import sqrt
 import numpy as np
 
-class Rod:
+class StaticRod:
 
     def __init__(self, n1: Node, n2: Node):
         self.A = 7.853e-3
@@ -18,7 +18,7 @@ class Rod:
     def length(self):
         return sqrt((self.n2.x - self.n1.x)**2 + (self.n2.y - self.n1.y)**2)
 
-    def angle(self):  # TODO can be made a abstarct class and inherited to cosine and sine
+    def angle(self):
         l = self.length()
 
         return [(self.n2.y - self.n1.y)/l, (self.n2.x - self.n1.x)/l]  # sine, cosine
@@ -45,7 +45,7 @@ class Rod:
     def get_stiffnes(self):
         return np.matmul(np.matmul(self.angle_matrix().transpose(), self.get_k()), self.angle_matrix())
 
-    def get_stiffnes_cords(self, mesh):  # TODO - in a loop
+    def get_stiffnes_cords(self, mesh):
         n1_id, n2_id = self.node_id(mesh)
 
         self.stiffnes_cords = []
@@ -55,12 +55,7 @@ class Rod:
         self.stiffnes_cords = np.array(self.stiffnes_cords)
 
 
-class StaticRod(Rod):
-    def __init__(self, n1: Node, n2: Node):
-        super().__init__(n1, n2)
-
-
-class ModalRod(Rod):
+class ModalRod(StaticRod):
     def __init__(self, n1: Node, n2: Node):
         super().__init__(n1, n2)
 
