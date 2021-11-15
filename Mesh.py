@@ -1,8 +1,6 @@
 import matplotlib.pyplot as plt
 import numpy as np
 from Node import Node
-from Rod import StaticRod, ModalRod
-from scipy import linalg
 
 
 class Mesh:
@@ -10,12 +8,13 @@ class Mesh:
     def __init__(self):
         self.nodes = []  # TODO store as a dataframe with columns: index and node or see read_from_file_method
         self.rods = []
+        self.boundary_conditions =[]
 
     def determinability(self):  # TODO
         pass
 
-    def set_boundary_conditions(self, dof):
-        for dir in dof:
+    def set_boundary_conditions(self):
+        for dir in self.boundary_conditions:
             self.stiffnes_matrix[:, dir] = 0
             self.stiffnes_matrix[dir, :] = 0
             self.stiffnes_matrix[dir, dir] = 1
@@ -107,49 +106,3 @@ class Mesh:
 
         plt.legend()
         plt.show()
-
-
-class StaticAnalysis(Mesh):
-    def __init__(self):
-        super().__init__()
-
-    def create_rod(self, n1, n2):
-        self.rods.append(StaticRod(n1, n2))
-
-    def create_model(self):
-        self.get_stiffnes_matrix()
-
-    def solve(self, force, prepare_model=False):
-        if prepare_model:
-            self.create_model()
-        return np.matmul(np.linalg.inv(self.stiffnes_matrix), force)
-
-
-class ModalAnalysis(Mesh):
-    def __init__(self):
-        super().__init__()
-
-    def create_rod(self, n1, n2):
-        self.rods.append(ModalRod(n1, n2))
-
-    def get_inertia_matrix(self):  # TODO - do not create additional variable for cords - do it on the go
-        self.inertia_matrix = np.zeros([len(self.nodes)*2, len(self.nodes)*2])
-
-        for rod in self.rods:
-            rod.get_stiffnes_cords(self)
-            inertia = rod.get_inertia()
-            cords = rod.stiffnes_cords
-
-            for inertia_r, cord_r in zip(inertia, cords):
-                for inertia_c, cord_c in zip(inertia_r, cord_r):
-                    self.inertia_matrix[cord_c[0], cord_c[1]] += inertia_c
-
-    def create_model(self):
-        self.get_stiffnes_matrix()
-        self.get_inertia_matrix()
-
-    def solve(self, prepare_model=False):
-        if prepare_model:
-            self.create_model()
-        return linalg.eigh(self.stiffnes_matrix, self.inertia_matrix)
-        # return np.sqrt(linalg.eig(self.stiffnes_matrix, self.inertia_matrix)[0].real) * 0.15915
