@@ -3,8 +3,6 @@ from Mesh import Mesh
 from ModalRod import ModalRod
 from scipy import linalg
 import matplotlib.pyplot as plt
-from time import sleep
-from matplotlib.animation import FuncAnimation
 
 
 class ModalAnalysis(Mesh):
@@ -42,20 +40,5 @@ class ModalAnalysis(Mesh):
         for freq in result.transpose():
             plt.figure()
             self.plot_lattice()
-            self.plot_solved(freq, factor, col='r')
-            self.plot_solved(-freq, factor, col='b')
-
-    def animate(self, i, freq, factor=1):  # TODO
-        plt.cla()
-        self.plot_lattice()
-        if i%2 == 0:
-            self.plot_solved(freq, factor)
-        else:
-            self.plot_solved(-freq, factor)
-        sleep(2)
-
-    def animate_frequency(self, freq, factor=1):  # TODO
-        fig, ax = plt.subplots()
-
-        ani = FuncAnimation(fig, self.animate, frames=20, interval=500, fargs=[freq], repeat=False)
-        plt.show()
+            self.plot_solved(freq, factor, col='r')  # switch between displacement direction
+            # self.plot_solved(-freq, factor, col='r')
