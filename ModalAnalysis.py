@@ -34,7 +34,9 @@ class ModalAnalysis(Mesh):
     def solve(self, prepare_model=True):
         if prepare_model:
             self.create_model()
-        return linalg.eigh(self.stiffnes_matrix, self.inertia_matrix)
+        result = linalg.eigh(self.stiffnes_matrix, self.inertia_matrix)
+
+        return 1/(2*np.pi)*np.sqrt(result[0]), result[1]
 
     def plot_frequencies(self, result, factor=1):
         for freq in result.transpose():
